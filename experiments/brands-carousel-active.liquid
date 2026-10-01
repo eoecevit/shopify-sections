@@ -1,0 +1,377 @@
+<!-- section-carousel.liquid | TRULY INFINITE | + Click Prevention While Moving -->
+
+<div class="brands-slider-section" style="padding-top:{{ section.settings.padding_top }}px; padding-bottom:{{ section.settings.padding_bottom }}px;">
+  <div class="brands-slider" data-icon-size="{{ section.settings.icon_size | default: 130 }}" data-gap-scale="{{ section.settings.gap_scale | default: 5 }}" data-speed="{{ section.settings.scroll_speed | default: 50 }}">
+    <div class="carousel-track">
+      <div class="carousel-content">
+        {% for block in section.blocks %}
+          <div class="carousel-item">
+            {% if block.settings.brand_link != blank %}<a href="{{ block.settings.brand_link }}" class="brand-item-link">{% endif %}
+            {% if block.settings.brand_image != blank %}<div class="brand-circle"><img src="{{ block.settings.brand_image | image_url: width: 300 }}" alt="{{ block.settings.brand_name | escape }}" loading="lazy" /></div>{% endif %}
+            {% if block.settings.brand_name != blank %}<p class="brand-name">{{ block.settings.brand_name }}</p>{% endif %}
+            {% if block.settings.brand_link != blank %}</a>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+* { box-sizing: border-box; }
+
+.brands-slider-section { width: 100%; overflow: hidden; }
+
+.brands-slider { width: 100%; overflow: hidden; cursor: grab; }
+
+.brands-slider.dragging { cursor: grabbing; }
+
+.carousel-track { 
+  display: flex; 
+  width: fit-content;
+  padding: 30px 0;
+  user-select: none;
+}
+
+.carousel-content { 
+  display: flex; 
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+
+.carousel-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  min-width: 150px;
+  width: 150px;
+}
+
+.carousel-item img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.brand-item-link {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+.brand-circle {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f6f6f6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.brand-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.brand-name {
+  font-size: 14px;
+  font-family: var(--font-body), sans-serif;
+  color: #222;
+  margin: 0;
+  padding: 0;
+  line-height: 1.3;
+  max-width: 140px;
+  word-break: break-word;
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (max-width: 1200px) {
+  .brand-circle { width: 100px; height: 100px; }
+  .carousel-item { min-width: 110px; width: 110px; }
+  .brand-name { font-size: 12px; }
+}
+
+@media (max-width: 768px) {
+  .brand-circle { width: 80px; height: 80px; }
+  .carousel-item { min-width: 90px; width: 90px; }
+  .brand-name { font-size: 11px; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var el = document.querySelector('.brands-slider');
+  if (!el) return;
+  
+  var speed = parseInt(el.getAttribute('data-speed')) || 50;
+  var iconSize = parseInt(el.getAttribute('data-icon-size')) || 130;
+  var gapScale = parseInt(el.getAttribute('data-gap-scale')) || 5;
+  
+  var track = el.querySelector('.carousel-track');
+  var content = el.querySelector('.carousel-content');
+  
+  var baseGap = 5 + (gapScale - 1) * 5;
+  
+  var isHovering = false;
+  var isDragging = false;
+  var dragStartX = 0;
+  var dragOffset = 0;
+  var translateX = 0;
+  var originalItems = null;
+  var pixelsPerSecond = (speed / 100) * 100;
+  var lastTime = Date.now();
+  var hasMovedSinceDragStart = false;
+  var lastTranslateX = 0;
+  
+  // Hover/Focus events
+  track.addEventListener('mouseenter', function() { isHovering = true; });
+  track.addEventListener('mouseleave', function() { isHovering = false; });
+  track.addEventListener('focusin', function() { isHovering = true; });
+  track.addEventListener('focusout', function() { isHovering = false; });
+  
+  // Drag events
+  track.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragOffset = 0;
+    hasMovedSinceDragStart = false;
+    lastTranslateX = translateX;
+    el.classList.add('dragging');
+  });
+  
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    dragOffset = e.clientX - dragStartX;
+    
+    // Check if carousel has moved significantly
+    if (Math.abs(dragOffset) > 3) {
+      hasMovedSinceDragStart = true;
+    }
+  });
+  
+  document.addEventListener('mouseup', function() {
+    isDragging = false;
+    el.classList.remove('dragging');
+  });
+  
+  // Touch events for mobile
+  track.addEventListener('touchstart', function(e) {
+    isDragging = true;
+    dragStartX = e.touches[0].clientX;
+    dragOffset = 0;
+    hasMovedSinceDragStart = false;
+    lastTranslateX = translateX;
+    el.classList.add('dragging');
+  });
+  
+  document.addEventListener('touchmove', function(e) {
+    if (!isDragging) return;
+    dragOffset = e.touches[0].clientX - dragStartX;
+    
+    if (Math.abs(dragOffset) > 3) {
+      hasMovedSinceDragStart = true;
+    }
+  });
+  
+  document.addEventListener('touchend', function() {
+    isDragging = false;
+    el.classList.remove('dragging');
+  });
+  
+  // Prevent link click if carousel was moving
+  track.addEventListener('click', function(e) {
+    var link = e.target.closest('.brand-item-link');
+    if (link && (isDragging || hasMovedSinceDragStart)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+  
+  function updateGap() {
+    content.style.gap = baseGap + 'px';
+  }
+  
+  function updateSizes() {
+    var circles = el.querySelectorAll('.brand-circle');
+    var currentSize = iconSize;
+    
+    if (window.innerWidth <= 1200) {
+      currentSize = Math.round(iconSize * 0.77);
+    }
+    if (window.innerWidth <= 768) {
+      currentSize = Math.round(iconSize * 0.62);
+    }
+    
+    circles.forEach(function(c) { 
+      c.style.width = currentSize + 'px'; 
+      c.style.height = currentSize + 'px'; 
+    });
+  }
+  
+  function addNextItems() {
+    var items = content.querySelectorAll('.carousel-item');
+    if (items.length === 0) return;
+    
+    if (!originalItems) {
+      originalItems = Array.from(items).map(function(item) {
+        return item.cloneNode(true);
+      });
+    }
+    
+    originalItems.forEach(function(item) {
+      content.appendChild(item.cloneNode(true));
+    });
+  }
+  
+  function checkAndAddItems() {
+    var contentWidth = content.offsetWidth;
+    var trackWidth = el.offsetWidth;
+    
+    if (-translateX + trackWidth > contentWidth - trackWidth) {
+      addNextItems();
+    }
+  }
+  
+  function animate() {
+    if (!isDragging && !isHovering) {
+      var now = Date.now();
+      var deltaTime = (now - lastTime) / 1000;
+      lastTime = now;
+      
+      translateX -= pixelsPerSecond * deltaTime;
+      checkAndAddItems();
+    } else if (isDragging) {
+      translateX += dragOffset;
+      dragStartX = dragStartX + dragOffset;
+      dragOffset = 0;
+      checkAndAddItems();
+    }
+    
+    track.style.transform = 'translateX(' + (translateX) + 'px)';
+    requestAnimationFrame(animate);
+  }
+  
+  updateGap();
+  updateSizes();
+  addNextItems();
+  animate();
+  
+  window.addEventListener('resize', function() {
+    updateSizes();
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Brands Carousel",
+  "settings": [
+    {
+      "type": "range",
+      "id": "scroll_speed",
+      "label": "Scroll Speed",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "default": 50,
+      "info": "1 = Slowest, 100 = Fastest"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon Size (px)",
+      "min": 80,
+      "max": 300,
+      "step": 10,
+      "default": 130
+    },
+    {
+      "type": "range",
+      "id": "gap_scale",
+      "label": "Gap Between Icons",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5,
+      "info": "1 = Minimum spacing, 10 = Maximum spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Brand",
+      "settings": [
+        {
+          "type": "text",
+          "id": "brand_name",
+          "label": "Brand name"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_image",
+          "label": "Brand image"
+        },
+        {
+          "type": "url",
+          "id": "brand_link",
+          "label": "Brand link"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "Brands Carousel",
+      "category": "Media",
+      "blocks": [
+        { "type": "brand" },
+        { "type": "brand" },
+        { "type": "brand" }
+      ]
+    }
+  ]
+}
+{% endschema %}
