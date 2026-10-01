@@ -1,0 +1,746 @@
+<!-- /sections/section-services-list.liquid | Friseur-Leistungen Section für Pitch Theme -->
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+<div
+  class="
+    section
+    section--{{ section.settings.section_width }}
+    color-{{ section.settings.color_scheme }}
+    section-resource-list
+    section-services-list
+    spacing-style
+    gap-style
+  "
+  style="
+    {% render 'spacing-style', settings: section.settings %}
+    {% render 'gap-style', value: section.settings.gap %}
+  "
+  data-section-id="{{ section.id }}"
+>
+  {%- if section.settings.heading != blank -%}
+    <div class="section-resource-list__header" style="text-align: {{ section.settings.heading_alignment }};">
+      <h2 class="section-heading">{{ section.settings.heading }}</h2>
+      {%- if section.settings.subheading != blank -%}
+        <div class="section-subheading rte">{{ section.settings.subheading }}</div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <div class="services-editorial-list">
+    {% for block in section.blocks %}
+      {% if block.type == 'service' %}
+        {% assign is_even = forloop.index | modulo: 2 %}
+        <div class="service-row {% if is_even == 0 %}service-row--reverse{% endif %}" {{ block.shopify_attributes }}>
+          <div
+            class="
+              service-card spacing-style border-style
+              {% if block.settings.inherit_color_scheme == false %}color-{{ block.settings.color_scheme }}{% endif %}
+            "
+            data-block-id="{{ block.id }}"
+            style="
+              {% render 'spacing-style', settings: block.settings %}
+              {% render 'border-override', settings: block.settings %}
+              --gap: {{ block.settings.gap }}px;
+            "
+          >
+            {%- if block.settings.image != blank -%}
+              <div class="service-card__image">
+                <img
+                  src="{{ block.settings.image | image_url: width: 800 }}"
+                  alt="{{ block.settings.image.alt | default: block.settings.title | escape }}"
+                  loading="lazy"
+                  width="{{ block.settings.image.width }}"
+                  height="{{ block.settings.image.height }}"
+                  style="
+                    border-radius: {{ block.settings.image_radius }}px;
+                    aspect-ratio: {{ block.settings.image_aspect_ratio }};
+                    object-fit: cover;
+                    width: 100%;
+                  "
+                >
+              </div>
+            {%- endif -%}
+
+            <div class="service-card__content">
+              {%- if block.settings.title != blank -%}
+                <h3 class="service-card__title">
+                  {{ block.settings.title }}
+                </h3>
+              {%- endif -%}
+
+              {%- if block.settings.price != blank -%}
+                <div class="service-card__price">
+                  {{ block.settings.price }}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.duration != blank -%}
+                <div class="service-card__duration">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  {{ block.settings.duration }}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.description != blank -%}
+                <div class="service-card__description rte">
+                  {{ block.settings.description }}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.long_description != blank -%}
+                <div class="service-card__details">
+                  <button class="service-card__details-summary" type="button" aria-expanded="false">
+                    {{ block.settings.details_label | default: "Mehr erfahren" }}
+                    <svg class="service-card__details-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <div class="service-card__details-content">
+                    <div class="service-card__details-inner rte">
+                      {{ block.settings.long_description }}
+                    </div>
+                  </div>
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
+                <div class="service-card__button">
+                  <a href="{{ block.settings.button_link }}" class="button{% if block.settings.button_style == 'secondary' %}-secondary{% endif %}">
+                    {{ block.settings.button_label }}
+                  </a>
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .section-services-list {
+    --icon-stroke-width: 1.5;
+  }
+
+  .services-editorial-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap, 64px);
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--gap-lg);
+    width: 100%;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .service-row {
+    width: 100%;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .service-row--reverse .service-card {
+    direction: rtl;
+  }
+
+  .service-row--reverse .service-card > * {
+    direction: ltr;
+  }
+
+  .service-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+    height: 100%;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .service-card__image {
+    overflow: hidden;
+  }
+
+  .service-card__image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    transition: transform 0.3s ease;
+  }
+
+  .service-card:hover .service-card__image img {
+    transform: scale(1.05);
+  }
+
+  .service-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 0;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .service-card__title {
+    margin: 0;
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .service-card__price {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgb(var(--color-foreground));
+  }
+
+  .service-card__duration {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    opacity: 0.8;
+  }
+
+  .service-card__duration svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .service-card__description {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    opacity: 0.9;
+    margin: 12px 0;
+  }
+
+  .service-card__button {
+    margin-top: 8px;
+  }
+
+  .service-card__details {
+    margin: 4px 0;
+  }
+
+  .service-card__details-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    color: rgb(var(--color-foreground));
+    user-select: none;
+    padding: 8px 0;
+    background: none;
+    border: none;
+    transition: opacity 0.2s ease;
+    width: 100%;
+    text-align: left;
+  }
+
+  .service-card__details-summary:hover {
+    opacity: 0.7;
+  }
+
+  .service-card__details-icon {
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+  }
+
+  .service-card__details.is-open .service-card__details-icon {
+    transform: rotate(180deg);
+  }
+
+  .service-card__details-content {
+    overflow: hidden;
+    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 0;
+  }
+
+  .service-card__details.is-open .service-card__details-content {
+    overflow: visible;
+  }
+
+  .service-card__details-inner {
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s, 
+                padding 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  .service-card__details.is-open .service-card__details-inner {
+    opacity: 0.85;
+    padding-top: 8px;
+    padding-bottom: 12px;
+    transform: translateY(0);
+  }
+
+  /* Buttons nutzen die Theme-Standard Klassen */
+  .service-card .button,
+  .service-card .button-secondary {
+    text-transform: none;
+  }
+
+  /* Mobile Layout - wie vorheriges Desktop */
+  @media (max-width: 989px) {
+    .services-editorial-list {
+      gap: var(--gap, 48px);
+      max-width: 1200px;
+      padding: 0 var(--gap-xl);
+    }
+
+    .service-row {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap-2xl, 48px);
+    }
+
+    .service-row--reverse {
+      direction: rtl;
+    }
+
+    .service-card {
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+
+    .service-card__image img {
+      min-height: auto;
+    }
+
+    .service-card__content {
+      gap: 12px;
+      padding: 0;
+    }
+
+    .service-card__title {
+      font-size: 1.75rem;
+    }
+
+    .service-card__price {
+      font-size: 1.25rem;
+    }
+
+    .service-card__duration {
+      font-size: 0.95rem;
+      gap: 6px;
+    }
+
+    .service-card__duration svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .service-card__description {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 8px 0;
+    }
+
+    .service-card__details-summary {
+      font-size: 0.95rem;
+    }
+
+    .service-card__details-inner {
+      font-size: 0.95rem;
+    }
+  }
+
+  @media (max-width: 749px) {
+    .services-editorial-list {
+      gap: var(--gap-xl, 32px);
+      padding: 0 var(--gap-lg);
+    }
+
+    .service-row {
+      grid-template-columns: 1fr;
+      gap: var(--gap-xl, 32px);
+    }
+
+    .service-row--reverse {
+      direction: ltr;
+    }
+
+    .service-card {
+      grid-template-columns: 1fr;
+      gap: var(--gap-lg, 24px);
+    }
+
+    .service-card__title {
+      font-size: 1.25rem;
+    }
+  }
+</style>
+
+<script>
+(function() {
+  // Smooth animated accordion for service details
+  document.addEventListener('DOMContentLoaded', function() {
+    const detailsElements = document.querySelectorAll('.service-card__details');
+    
+    detailsElements.forEach(function(details) {
+      const button = details.querySelector('.service-card__details-summary');
+      const content = details.querySelector('.service-card__details-content');
+      const inner = details.querySelector('.service-card__details-inner');
+      
+      if (!button || !content || !inner) return;
+      
+      // Set initial height
+      content.style.height = '0px';
+      
+      button.addEventListener('click', function() {
+        const isOpen = details.classList.contains('is-open');
+        
+        if (isOpen) {
+          // Close - set overflow hidden first
+          content.style.overflow = 'hidden';
+          const currentHeight = content.scrollHeight;
+          content.style.height = currentHeight + 'px';
+          
+          // Force reflow
+          requestAnimationFrame(function() {
+            content.style.height = '0px';
+          });
+          
+          details.classList.remove('is-open');
+          button.setAttribute('aria-expanded', 'false');
+        } else {
+          // Open
+          details.classList.add('is-open');
+          button.setAttribute('aria-expanded', 'true');
+          
+          const targetHeight = inner.scrollHeight;
+          content.style.height = targetHeight + 'px';
+          
+          // Set overflow to visible after animation completes
+          setTimeout(function() {
+            if (details.classList.contains('is-open')) {
+              content.style.overflow = 'visible';
+            }
+          }, 800);
+        }
+      });
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Friseur-Leistungen",
+  "tag": "section",
+  "class": "section-services-list",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Überschrift",
+      "default": "Unsere Leistungen"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Unterüberschrift"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Überschrift Ausrichtung",
+      "options": [
+        {
+          "value": "left",
+          "label": "Links"
+        },
+        {
+          "value": "center",
+          "label": "Zentriert"
+        },
+        {
+          "value": "right",
+          "label": "Rechts"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Abstand zwischen Services",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Farben"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Farbschema",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Abstände"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Oben",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Unten",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "service",
+      "name": "Leistung",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "Haarschnitt"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Bild"
+        },
+        {
+          "type": "range",
+          "id": "image_radius",
+          "label": "Bild Rundung",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "default": 8
+        },
+        {
+          "type": "select",
+          "id": "image_aspect_ratio",
+          "label": "Bild Seitenverhältnis",
+          "options": [
+            {
+              "value": "1 / 1",
+              "label": "Quadratisch (1:1)"
+            },
+            {
+              "value": "4 / 3",
+              "label": "Landschaft (4:3)"
+            },
+            {
+              "value": "16 / 9",
+              "label": "Breitbild (16:9)"
+            },
+            {
+              "value": "3 / 4",
+              "label": "Hochformat (3:4)"
+            },
+            {
+              "value": "auto",
+              "label": "Original"
+            }
+          ],
+          "default": "4 / 3"
+        },
+        {
+          "type": "text",
+          "id": "price",
+          "label": "Preis",
+          "default": "ab 45€",
+          "info": "Z.B. 'ab 45€' oder '45€ - 65€'"
+        },
+        {
+          "type": "text",
+          "id": "duration",
+          "label": "Dauer",
+          "default": "45 Min",
+          "info": "Z.B. '45 Min' oder '1-2 Std'"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Kurzbeschreibung",
+          "default": "<p>Professioneller Haarschnitt mit Beratung und Styling.</p>",
+          "info": "Immer sichtbare Beschreibung"
+        },
+        {
+          "type": "richtext",
+          "id": "long_description",
+          "label": "Ausführliche Beschreibung",
+          "info": "Ausklappbare Langbeschreibung für zusätzliche Details"
+        },
+        {
+          "type": "text",
+          "id": "details_label",
+          "label": "Details-Button Text",
+          "default": "Mehr erfahren",
+          "info": "Text für den Ausklapp-Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button Text",
+          "default": "Termin buchen"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button Link",
+          "info": "Link zu Ihrer Buchungsseite oder Kontakt"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button Stil",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primär"
+            },
+            {
+              "value": "secondary",
+              "label": "Sekundär"
+            }
+          ],
+          "default": "primary"
+        },
+        {
+          "type": "header",
+          "content": "Farben"
+        },
+        {
+          "type": "checkbox",
+          "id": "inherit_color_scheme",
+          "label": "Farbschema von Section übernehmen",
+          "default": true
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "Farbschema",
+          "default": "scheme-1"
+        },
+        {
+          "type": "header",
+          "content": "Abstände"
+        },
+        {
+          "type": "range",
+          "id": "padding-block-start",
+          "label": "Oben",
+          "min": 0,
+          "max": 60,
+          "step": 4,
+          "unit": "px",
+          "default": 20
+        },
+        {
+          "type": "range",
+          "id": "padding-block-end",
+          "label": "Unten",
+          "min": 0,
+          "max": 60,
+          "step": 4,
+          "unit": "px",
+          "default": 20
+        },
+        {
+          "type": "range",
+          "id": "padding-inline-start",
+          "label": "Links",
+          "min": 0,
+          "max": 60,
+          "step": 4,
+          "unit": "px",
+          "default": 20
+        },
+        {
+          "type": "range",
+          "id": "padding-inline-end",
+          "label": "Rechts",
+          "min": 0,
+          "max": 60,
+          "step": 4,
+          "unit": "px",
+          "default": 20
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Friseur-Leistungen",
+      "category": "EOE",
+      "blocks": [
+        {
+          "type": "service",
+          "settings": {
+            "title": "Damen Haarschnitt",
+            "price": "ab 45€",
+            "duration": "45-60 Min",
+            "description": "<p>Professioneller Haarschnitt mit individueller Beratung und Styling.</p>",
+            "button_label": "Termin buchen"
+          }
+        },
+        {
+          "type": "service",
+          "settings": {
+            "title": "Herren Haarschnitt",
+            "price": "ab 35€",
+            "duration": "30 Min",
+            "description": "<p>Klassischer oder moderner Herrenschnitt nach Ihren Wünschen.</p>",
+            "button_label": "Termin buchen"
+          }
+        },
+        {
+          "type": "service",
+          "settings": {
+            "title": "Färben & Strähnchen",
+            "price": "ab 65€",
+            "duration": "1-2 Std",
+            "description": "<p>Professionelle Coloration und Strähnen für natürliche oder kreative Looks.</p>",
+            "button_label": "Termin buchen"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
